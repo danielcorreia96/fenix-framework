@@ -1,5 +1,6 @@
 package pt.ist.fenixframework.backend.jvstmojb.ojb;
 
+import com.mysql.cj.jdbc.NonRegisteringDriver;
 import org.apache.ojb.broker.metadata.ConnectionPoolDescriptor;
 import org.apache.ojb.broker.metadata.JdbcConnectionDescriptor;
 import org.apache.ojb.broker.util.configuration.impl.OjbConfiguration;
@@ -7,7 +8,6 @@ import org.apache.ojb.broker.util.configuration.impl.OjbConfiguration;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.backend.jvstmojb.JvstmOJBConfig;
 
-import com.mysql.jdbc.NonRegisteringDriver;
 
 public class MetadataManager {
 

@@ -1,5 +1,6 @@
 package pt.ist.fenixframework.backend.jvstmojb;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +14,6 @@ import pt.ist.fenixframework.backend.jvstmojb.repository.DbUtil;
 import pt.ist.fenixframework.core.AbstractDomainObject;
 import pt.ist.fenixframework.core.DomainObjectAllocator;
 import pt.ist.fenixframework.core.SharedIdentityMap;
-
-import com.mysql.jdbc.AbandonedConnectionCleanupThread;
 
 public class JvstmOJBBackEnd implements BackEnd {
     private static final Logger logger = LoggerFactory.getLogger(JvstmOJBBackEnd.class);
@@ -79,11 +78,7 @@ public class JvstmOJBBackEnd implements BackEnd {
 
     @Override
     public void shutdown() {
-        try {
-            AbandonedConnectionCleanupThread.shutdown();
-        } catch (InterruptedException e) {
-            logger.info("Error while shutting down AbandonedConnectionCleanupThread", e);
-        }
+        AbandonedConnectionCleanupThread.checkedShutdown();
         DbUtil.deregisterDriver();
     }
 

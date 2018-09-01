@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 
 public class SQLTableInfo {
     public static class Column {
@@ -83,11 +82,8 @@ public class SQLTableInfo {
 
     public SQLTableInfo(final String tablename, final Connection connection) throws SQLException {
         this.tablename = tablename;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("show create table " + escapeName(tablename));
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("show create table " + escapeName(tablename))) {
             if (resultSet.next()) {
                 exists = true;
                 final String[] tableParts = extractParts(normalize(resultSet.getString(2)));
@@ -98,29 +94,19 @@ public class SQLTableInfo {
                             throw new Error("More than one primary key for: " + tablename);
                         }
                         getSet(primaryKey, tablePart);
-                    } else if (tablePart.startsWith("UNIQUE KEY")) {
+                    }
+                    else if (tablePart.startsWith("UNIQUE KEY") || tablePart.startsWith("KEY ")) {
                         indexes.putAll(getNamedSet(tablePart));
-                    } else if (tablePart.startsWith("KEY ")) {
-                        indexes.putAll(getNamedSet(tablePart));
-                    } else {
+                    }
+                    else {
                         final int indexOfFirstSpace = tablePart.indexOf(' ');
                         final String columnName = tablePart.substring(0, indexOfFirstSpace);
                         columns.add(new Column(columnName, tablePart.substring(indexOfFirstSpace, tablePart.length()).trim()));
                     }
                 }
-            } else {
+            }
+            else {
                 exists = false;
-            }
-        } catch (final MySQLSyntaxErrorException mySQLSyntaxErrorException) {
-            exists = false;
-        } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException ex) {
-            exists = false;
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (statement != null) {
-                statement.close();
             }
         }
     }
